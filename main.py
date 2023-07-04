@@ -8,7 +8,8 @@ import tokenFile
 
 from cogs.Core_Commands_Cog import Core_Commands
 from cogs.Fun import Fun
-from cogs.music import Music
+from cogs.music import music
+from cogs.data import databaseCommands
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -35,7 +36,8 @@ async def on_ready():
     print(f'Logged in as {bot.user.name}')
     await bot.add_cog(Core_Commands(bot))
     await bot.add_cog(Fun(bot))
-    await bot.add_cog(Music(bot))
+    await bot.add_cog(music(bot))
+    await bot.add_cog(databaseCommands(bot))
      
      
     synced = await bot.tree.sync()

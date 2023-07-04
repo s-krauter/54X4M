@@ -9,6 +9,12 @@ from discord import Interaction
 from urllib.request import urlopen
 from bs4 import BeautifulSoup 
 
+<<<<<<< HEAD
+=======
+#opening command
+from cogs.music import music
+
+>>>>>>> 950db3c0fb46fb67af4c62189b4c8ab56dd62d85
 #MAL search
 from mal import *
 #https://github.com/darenliang/mal-api/tree/master
@@ -86,7 +92,24 @@ class Fun(commands.Cog):
         
     #--------------------------------------------------------------------------
         
+<<<<<<< HEAD
     
+=======
+    #Opening play request command        
+    @commands.hybrid_command(description = "List the openings for desired anime")
+    async def opening(self, ctx: discord.Interaction, anime: str) -> None:
+        search = AnimeSearch(anime)
+        
+        url_split = search.results[0].url.split("/")
+        anime_number = url_split[4]
+        
+        
+        animePage = Anime(anime_number)
+        
+        await ctx.send(animePage.opening_themes)
+        
+        
+>>>>>>> 950db3c0fb46fb67af4c62189b4c8ab56dd62d85
         
     
     #--------------------------------------------------------------------------
@@ -94,6 +117,10 @@ class Fun(commands.Cog):
     #MAL Search Command        
     @commands.hybrid_command(description = "Search an anime by name")
     async def anime(self, ctx: discord.Interaction, anime: str) -> None:
+<<<<<<< HEAD
+=======
+        """Search an anime by name"""
+>>>>>>> 950db3c0fb46fb67af4c62189b4c8ab56dd62d85
         search = AnimeSearch(anime)
         
         url_split = search.results[0].url.split("/")
