@@ -5,6 +5,8 @@ from discord.ext import commands
 import asyncio
 import sys
 import tokenFile
+import datetime, time
+from discord.ext import tasks
 
 from cogs.Core_Commands_Cog import Core_Commands
 from cogs.Fun import Fun
@@ -13,6 +15,7 @@ from cogs.data import databaseCommands
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True
 intents.voice_states = True
 
 bot = commands.Bot(command_prefix='/', intents=intents)
@@ -29,11 +32,14 @@ import time
 async def ping(interaction) -> None:
      await interaction.response.send_message(f'Pongers! {round(bot.latency * 1000)}ms response time')
 
-  
+
 #bot online
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user.name}')
+    global launch_Time
+    launch_Time = time.time()
+    print("Bot loaded at start time " + str(launch_Time))
     await bot.add_cog(Core_Commands(bot))
     await bot.add_cog(Fun(bot))
     await bot.add_cog(music(bot))
@@ -42,6 +48,8 @@ async def on_ready():
      
     synced = await bot.tree.sync()
     print(f"Synced {len(synced)} command(s)")
+    
+    await avatar_update()
     
 #Unscramble Minigame        
 @bot.tree.command(name = "word_scramble", description = "Unscramble a word before time runs out!")
@@ -195,13 +203,51 @@ async def word_scramble(interaction) -> None:
     embedVar.add_field(name="Correct word:", value = word)
     await interaction.channel.send(embed=embedVar)
 
+
+#About Command        
+@bot.tree.command(description = "About me for the bot")
+async def about(ctx) -> None:
+    uptimeStr = str(datetime.timedelta(seconds=int(round(time.time() - launch_Time))))
+    splitter = uptimeStr.split(":")
+    labelArr = ["m", "w", "d", "h", "m", "s"]
+    if len(splitter) == 3:
+        uptimeStr = splitter[0] + "d " + splitter[1] + "h " + splitter[2] + "s"
+    elif len(splitter) == 4:
+        uptimeStr = splitter[0] + "w " + splitter[1] + "d " + splitter[2] + "h"
+    else:
+        uptimeStr = splitter[0] + "m " + splitter[1] + "w " + splitter[2] + "d"
+    embedVar = discord.Embed(description="<:LewdMegumin:1134715702180323348>" + " Sam's WIP bot. " + "<:9008kindredbooty:1134715674443395173>",
+                             color=0x00ff00)
+    
+    embedVar.set_footer(text = "Online for " + uptimeStr)
+    await ctx.response.send_message(embed=embedVar)
+
 bot.activity = discord.Game(name='/about')
 # or, for watching:
 #activity = discord.Activity(name='my activity', type=discord.ActivityType.watching)
 
+#set to 86400 for daily avatar updates
+@tasks.loop(seconds = 86400)
+async def avatar_update():
+    while True:
+        print("looping")
+        for guild in bot.guilds:
+            async for member in guild.fetch_members():
+                avatar = member.display_avatar
+                avatar_url = avatar.url
+                #print(avatar_url)
+                databaseCommands.update_avatars(member.id, guild.id, avatar_url)
+        await asyncio.sleep(86400)
+
+#loop = asyncio.get_event_loop()
+#loop.create_task(avatar_update())
+
+
 
 #log in to bot with token
 bot.run(tokenFile.BOT_TOKEN)
+
+
 
 
 
